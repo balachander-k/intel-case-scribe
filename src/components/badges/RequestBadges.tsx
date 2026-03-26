@@ -7,14 +7,14 @@ interface StatusBadgeProps {
 
 const statusStyles: Record<RequestStatus, string> = {
   Draft: 'bg-muted text-muted-foreground',
-  Reviewed: 'bg-accent/15 text-accent',
+  Reviewed: 'bg-primary/15 text-primary',
   Approved: 'bg-success/15 text-success',
-  Finalized: 'bg-primary/10 text-primary',
+  Finalized: 'bg-foreground/10 text-foreground',
 };
 
 export function StatusBadge({ status }: StatusBadgeProps) {
   return (
-    <span className={`inline-flex items-center px-2 py-0.5 rounded text-[11px] font-medium tracking-wide uppercase ${statusStyles[status]}`}>
+    <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-[11px] font-bold tracking-wide uppercase ${statusStyles[status]}`}>
       {status}
     </span>
   );
@@ -32,7 +32,7 @@ const priorityStyles: Record<Priority, string> = {
 
 export function PriorityBadge({ priority }: PriorityBadgeProps) {
   return (
-    <span className={`inline-flex items-center px-2 py-0.5 rounded text-[11px] font-medium tracking-wide uppercase ${priorityStyles[priority]}`}>
+    <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-[11px] font-bold tracking-wide uppercase ${priorityStyles[priority]}`}>
       {priority}
     </span>
   );
@@ -44,7 +44,7 @@ interface TypeBadgeProps {
 
 export function TypeBadge({ type }: TypeBadgeProps) {
   return (
-    <span className="inline-flex items-center px-2 py-0.5 rounded text-[11px] font-medium bg-surface-raised text-foreground border">
+    <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-primary/10 text-primary border border-primary/20">
       {type}
     </span>
   );
@@ -66,7 +66,7 @@ export function DueBadge({ dueDate }: DueBadgeProps) {
   if (status === 'normal') return null;
 
   return (
-    <span className={`inline-flex items-center px-2 py-0.5 rounded text-[11px] font-medium ${styles[status]}`}>
+    <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-[11px] font-bold ${styles[status]}`}>
       {labels[status]}
     </span>
   );
@@ -78,7 +78,7 @@ interface TagBadgeProps {
 
 export function TagBadge({ tag }: TagBadgeProps) {
   return (
-    <span className="inline-flex items-center px-1.5 py-0.5 rounded-sm text-[10px] font-medium bg-accent/10 text-accent border border-accent/20">
+    <span className="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-bold bg-primary/10 text-primary border border-primary/20">
       {tag}
     </span>
   );

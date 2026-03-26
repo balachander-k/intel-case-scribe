@@ -4,7 +4,7 @@ import { useRequestStore } from '@/store/requestStore';
 import { StatusBadge, PriorityBadge, TypeBadge, DueBadge } from '@/components/badges/RequestBadges';
 import { RequestStatus, Priority, RequestType } from '@/types/request';
 import { format, parseISO } from 'date-fns';
-import { Search, Filter, ArrowUpDown } from 'lucide-react';
+import { Search, ArrowUpDown, Plus } from 'lucide-react';
 
 export default function RequestRegister() {
   const { requests } = useRequestStore();
@@ -19,7 +19,6 @@ export default function RequestRegister() {
 
   const filtered = useMemo(() => {
     let result = [...requests];
-
     if (search) {
       const q = search.toLowerCase();
       result = result.filter(
@@ -42,7 +41,6 @@ export default function RequestRegister() {
       else cmp = priorityOrder[a.priority] - priorityOrder[b.priority];
       return sortDir === 'desc' ? -cmp : cmp;
     });
-
     return result;
   }, [requests, search, statusFilter, priorityFilter, typeFilter, sortField, sortDir]);
 
@@ -52,16 +50,17 @@ export default function RequestRegister() {
   };
 
   return (
-    <div className="p-6 max-w-[1400px]">
+    <div className="p-6 max-w-[1400px] mx-auto">
       <div className="flex items-center justify-between mb-6">
         <div>
-          <h1 className="text-xl font-semibold tracking-tight">Request Register</h1>
+          <h1 className="text-2xl font-bold tracking-tight">Request Register</h1>
           <p className="text-sm text-muted-foreground mt-1">{filtered.length} of {requests.length} requests</p>
         </div>
         <button
           onClick={() => navigate('/create')}
-          className="px-4 py-2 bg-primary text-primary-foreground text-sm font-medium rounded-md hover:opacity-90 transition-opacity active:scale-[0.98]"
+          className="inline-flex items-center gap-2 px-5 py-2.5 bg-primary text-primary-foreground text-sm font-bold rounded-md hover:opacity-90 transition-opacity active:scale-[0.98]"
         >
+          <Plus className="h-4 w-4" />
           New Request
         </button>
       </div>
@@ -75,7 +74,7 @@ export default function RequestRegister() {
             placeholder="Search by ID, name, or description..."
             value={search}
             onChange={(e) => setSearch(e.target.value)}
-            className="w-full pl-9 pr-3 py-2 text-sm bg-card border rounded-md focus:outline-none focus:ring-2 focus:ring-accent/30 focus:border-accent"
+            className="w-full pl-9 pr-3 py-2.5 text-sm bg-card border rounded-md focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary"
           />
         </div>
         <SelectFilter label="Status" value={statusFilter} onChange={(v) => setStatusFilter(v as any)} options={['Draft', 'Reviewed', 'Approved', 'Finalized']} />
@@ -87,14 +86,14 @@ export default function RequestRegister() {
       <div className="bg-card rounded-lg border shadow-ink overflow-hidden">
         <table className="w-full text-sm">
           <thead>
-            <tr className="border-b bg-surface-raised">
+            <tr className="border-b bg-primary/5">
               <Th onClick={() => toggleSort('createdAt')} active={sortField === 'createdAt'}>Request ID</Th>
-              <th className="text-left px-4 py-2.5 text-xs font-medium text-muted-foreground uppercase tracking-wider">Requestor</th>
-              <th className="text-left px-4 py-2.5 text-xs font-medium text-muted-foreground uppercase tracking-wider">Type</th>
+              <th className="text-left px-4 py-3 text-xs font-bold text-muted-foreground uppercase tracking-wider">Requestor</th>
+              <th className="text-left px-4 py-3 text-xs font-bold text-muted-foreground uppercase tracking-wider">Type</th>
               <Th onClick={() => toggleSort('priority')} active={sortField === 'priority'}>Priority</Th>
-              <th className="text-left px-4 py-2.5 text-xs font-medium text-muted-foreground uppercase tracking-wider">Status</th>
+              <th className="text-left px-4 py-3 text-xs font-bold text-muted-foreground uppercase tracking-wider">Status</th>
               <Th onClick={() => toggleSort('dueDate')} active={sortField === 'dueDate'}>Due Date</Th>
-              <th className="text-left px-4 py-2.5 text-xs font-medium text-muted-foreground uppercase tracking-wider">Created</th>
+              <th className="text-left px-4 py-3 text-xs font-bold text-muted-foreground uppercase tracking-wider">Created</th>
             </tr>
           </thead>
           <tbody>
@@ -102,11 +101,11 @@ export default function RequestRegister() {
               <tr
                 key={r.id}
                 onClick={() => navigate(`/requests/${r.id}`)}
-                className="border-b last:border-b-0 hover:bg-surface-raised cursor-pointer transition-colors"
+                className="border-b last:border-b-0 hover:bg-primary/5 cursor-pointer transition-colors"
               >
-                <td className="px-4 py-3 font-mono text-xs tabular-nums">{r.id}</td>
+                <td className="px-4 py-3 font-mono text-xs tabular-nums font-semibold text-primary">{r.id}</td>
                 <td className="px-4 py-3">
-                  <div className="text-sm font-medium">{r.requestorName}</div>
+                  <div className="text-sm font-semibold">{r.requestorName}</div>
                   <div className="text-xs text-muted-foreground">{r.requestorEmail}</div>
                 </td>
                 <td className="px-4 py-3"><TypeBadge type={r.requestType} /></td>
@@ -142,7 +141,7 @@ function SelectFilter({ label, value, onChange, options }: { label: string; valu
     <select
       value={value}
       onChange={(e) => onChange(e.target.value)}
-      className="px-3 py-2 text-sm bg-card border rounded-md focus:outline-none focus:ring-2 focus:ring-accent/30 focus:border-accent text-foreground"
+      className="px-3 py-2.5 text-sm bg-card border rounded-md focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary text-foreground font-medium"
     >
       <option value="">All {label}</option>
       {options.map((o) => (
@@ -156,8 +155,8 @@ function Th({ children, onClick, active }: { children: React.ReactNode; onClick:
   return (
     <th
       onClick={onClick}
-      className={`text-left px-4 py-2.5 text-xs font-medium uppercase tracking-wider cursor-pointer select-none hover:text-foreground transition-colors ${
-        active ? 'text-foreground' : 'text-muted-foreground'
+      className={`text-left px-4 py-3 text-xs font-bold uppercase tracking-wider cursor-pointer select-none hover:text-foreground transition-colors ${
+        active ? 'text-primary' : 'text-muted-foreground'
       }`}
     >
       <span className="inline-flex items-center gap-1">
