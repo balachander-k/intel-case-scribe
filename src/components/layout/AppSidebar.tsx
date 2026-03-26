@@ -21,7 +21,7 @@ export function AppSidebar() {
             </div>
             <div>
               <span className="text-lg font-extrabold text-primary-foreground tracking-tight">
-                RequestIQ
+                RequestIQMS
               </span>
               <span className="hidden sm:inline-block ml-2 text-xs text-primary-foreground/70 font-medium">
                 Internal Operations
