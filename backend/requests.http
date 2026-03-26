@@ -1,0 +1,46 @@
+@baseUrl = http://localhost:5000
+
+### List requests
+GET {{baseUrl}}/api/requests
+
+### Create request
+POST {{baseUrl}}/api/requests
+Content-Type: application/json
+
+{
+  "requestorName": "Test User",
+  "requestorEmail": "test.user@company.com",
+  "requestorId": "EMP-9001",
+  "requestType": "Issue",
+  "sourceChannel": "Portal",
+  "priority": "High",
+  "rawDescription": "vpn keeps dropping every 10 mins"
+}
+
+### Get request by id
+GET {{baseUrl}}/api/requests/{{requestId}}
+
+### Update status
+PATCH {{baseUrl}}/api/requests/{{requestId}}/status
+Content-Type: application/json
+
+{
+  "status": "Reviewed"
+}
+
+### Generate AI notes
+POST {{baseUrl}}/api/requests/{{requestId}}/ai-notes/generate
+
+### Add follow-up
+POST {{baseUrl}}/api/requests/{{requestId}}/follow-ups
+Content-Type: application/json
+
+{
+  "content": "Validated issue in staging"
+}
+
+### Toggle follow-up
+PATCH {{baseUrl}}/api/requests/{{requestId}}/follow-ups/{{followUpId}}/toggle
+
+### Dashboard
+GET {{baseUrl}}/api/dashboard
