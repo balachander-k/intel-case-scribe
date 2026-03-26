@@ -1,5 +1,6 @@
 import { NavLink, useLocation } from 'react-router-dom';
-import { LayoutDashboard, Plus, List, FileText } from 'lucide-react';
+import { LayoutDashboard, Plus, List, FileText, Menu, X } from 'lucide-react';
+import { useState } from 'react';
 
 const navItems = [
   { to: '/', icon: LayoutDashboard, label: 'Dashboard' },
@@ -11,37 +12,42 @@ export function AppSidebar() {
   const location = useLocation();
 
   return (
-    <aside className="fixed left-0 top-0 bottom-0 w-60 bg-sidebar flex flex-col z-30">
-      <div className="h-14 flex items-center px-5 border-b border-sidebar-border">
-        <FileText className="h-5 w-5 text-sidebar-primary mr-2.5" />
-        <span className="text-sm font-semibold text-sidebar-accent-foreground tracking-tight">
-          RequestIQ
-        </span>
+    <header className="fixed top-0 left-0 right-0 z-30 bg-card border-b border-border">
+      {/* Top brand bar */}
+      <div className="bg-primary">
+        <div className="max-w-[1400px] mx-auto px-6 py-2.5 flex items-center justify-between">
+          <div className="flex items-center gap-2.5">
+            <FileText className="h-5 w-5 text-primary-foreground" />
+            <span className="text-base font-bold text-primary-foreground tracking-tight">
+              RequestIQ
+            </span>
+          </div>
+          <span className="text-xs text-primary-foreground/80 font-medium">Internal Operations Portal</span>
+        </div>
       </div>
 
-      <nav className="flex-1 px-3 py-4 space-y-0.5">
-        {navItems.map((item) => {
-          const isActive = item.to === '/' ? location.pathname === '/' : location.pathname.startsWith(item.to);
-          return (
-            <NavLink
-              key={item.to}
-              to={item.to}
-              className={`flex items-center gap-2.5 px-3 py-2 rounded-md text-[13px] font-medium transition-colors duration-150 ${
-                isActive
-                  ? 'bg-sidebar-accent text-sidebar-accent-foreground'
-                  : 'text-sidebar-muted hover:text-sidebar-foreground hover:bg-sidebar-accent/50'
-              }`}
-            >
-              <item.icon className="h-4 w-4" />
-              {item.label}
-            </NavLink>
-          );
-        })}
-      </nav>
-
-      <div className="px-5 py-4 border-t border-sidebar-border">
-        <p className="text-[11px] text-sidebar-muted">Internal Operations</p>
+      {/* Navigation bar */}
+      <div className="max-w-[1400px] mx-auto px-6">
+        <nav className="flex items-center gap-1 h-12">
+          {navItems.map((item) => {
+            const isActive = item.to === '/' ? location.pathname === '/' : location.pathname.startsWith(item.to);
+            return (
+              <NavLink
+                key={item.to}
+                to={item.to}
+                className={`flex items-center gap-2 px-4 py-2 rounded-md text-sm font-semibold transition-colors duration-150 ${
+                  isActive
+                    ? 'text-primary border-b-[3px] border-primary rounded-b-none'
+                    : 'text-muted-foreground hover:text-foreground hover:bg-muted/50'
+                }`}
+              >
+                <item.icon className="h-4 w-4" />
+                {item.label}
+              </NavLink>
+            );
+          })}
+        </nav>
       </div>
-    </aside>
+    </header>
   );
 }
