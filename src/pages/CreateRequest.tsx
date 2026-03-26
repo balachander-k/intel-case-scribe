@@ -3,15 +3,15 @@ import { useNavigate } from 'react-router-dom';
 import { useRequestStore } from '@/store/requestStore';
 import { REQUEST_TYPE_OPTIONS, SOURCE_CHANNEL_OPTIONS, PRIORITY_OPTIONS, RequestType, SourceChannel, Priority } from '@/types/request';
 import { toast } from 'sonner';
-import { Mail, MessageSquare, FileText, Ticket, Upload, Sparkles, AlertCircle, User, Building, Hash, Tag, Clock } from 'lucide-react';
+import { Mail, MessageSquare, FileText, Ticket, Upload, Sparkles, AlertCircle, User, Building, Hash, Tag, Clock, Send } from 'lucide-react';
 
 type ImportMode = 'form' | 'email' | 'chat' | 'ticketing';
 
 const IMPORT_TABS: { mode: ImportMode; label: string; icon: React.ElementType; desc: string }[] = [
-  { mode: 'form', label: 'Manual Form', icon: FileText, desc: 'Fill in request details manually' },
-  { mode: 'email', label: 'Email Import', icon: Mail, desc: 'Paste an email thread to auto-parse' },
-  { mode: 'chat', label: 'Chat Import', icon: MessageSquare, desc: 'Paste chat/IM conversation' },
-  { mode: 'ticketing', label: 'Ticketing System', icon: Ticket, desc: 'Import from external ticket' },
+  { mode: 'form', label: 'Manual Form', icon: FileText, desc: 'Fill in details manually' },
+  { mode: 'email', label: 'Email Import', icon: Mail, desc: 'Auto-parse email thread' },
+  { mode: 'chat', label: 'Chat Import', icon: MessageSquare, desc: 'Parse chat conversation' },
+  { mode: 'ticketing', label: 'Ticketing', icon: Ticket, desc: 'Import external ticket' },
 ];
 
 function parseEmail(raw: string) {
@@ -57,16 +57,16 @@ export default function CreateRequest() {
   const handleParse = () => {
     if (!rawImport.trim()) { toast.error('Please paste content to import.'); return; }
     if (importMode === 'email') {
-      const result = parseEmail(rawImport);
-      setForm(f => ({ ...f, requestorName: result.name || f.requestorName, requestorEmail: result.email || f.requestorEmail, sourceChannel: 'Email', rawDescription: result.body || rawImport }));
+      const r = parseEmail(rawImport);
+      setForm(f => ({ ...f, requestorName: r.name || f.requestorName, requestorEmail: r.email || f.requestorEmail, sourceChannel: 'Email', rawDescription: r.body || rawImport }));
     } else if (importMode === 'chat') {
-      const result = parseChat(rawImport);
-      setForm(f => ({ ...f, requestorName: result.name || f.requestorName, sourceChannel: 'Chat', rawDescription: result.body || rawImport }));
+      const r = parseChat(rawImport);
+      setForm(f => ({ ...f, requestorName: r.name || f.requestorName, sourceChannel: 'Chat', rawDescription: r.body || rawImport }));
     } else if (importMode === 'ticketing') {
-      const result = parseTicket(rawImport);
-      const priorityMap: Record<string, Priority> = { low: 'Low', medium: 'Medium', high: 'High', critical: 'High', urgent: 'High' };
-      const typeMap: Record<string, RequestType> = { access: 'Access', issue: 'Issue', information: 'Information', change: 'Change', incident: 'Issue', request: 'Other' };
-      setForm(f => ({ ...f, requestorId: result.ticketId || f.requestorId, priority: priorityMap[result.priority.toLowerCase()] || f.priority, requestType: typeMap[result.type.toLowerCase()] || f.requestType, sourceChannel: 'Portal', rawDescription: result.body || rawImport }));
+      const r = parseTicket(rawImport);
+      const pm: Record<string, Priority> = { low: 'Low', medium: 'Medium', high: 'High', critical: 'High', urgent: 'High' };
+      const tm: Record<string, RequestType> = { access: 'Access', issue: 'Issue', information: 'Information', change: 'Change', incident: 'Issue', request: 'Other' };
+      setForm(f => ({ ...f, requestorId: r.ticketId || f.requestorId, priority: pm[r.priority.toLowerCase()] || f.priority, requestType: tm[r.type.toLowerCase()] || f.requestType, sourceChannel: 'Portal', rawDescription: r.body || rawImport }));
     }
     setParsed(true);
     toast.success('Content parsed! Review the pre-filled fields below.');
@@ -87,65 +87,62 @@ export default function CreateRequest() {
 
   return (
     <div className="p-6 max-w-3xl mx-auto">
-      <div className="mb-6">
-        <h1 className="text-2xl font-bold tracking-tight">New Request</h1>
-        <p className="text-sm text-muted-foreground mt-1">Capture an internal request from any source for processing</p>
+      <div className="mb-6 animate-fade-in">
+        <h1 className="text-2xl font-extrabold tracking-tight">New Request</h1>
+        <p className="text-sm text-muted-foreground mt-1">Capture an internal request from any source</p>
       </div>
 
       {/* Import Mode Tabs */}
-      <div className="grid grid-cols-4 gap-2 mb-5">
+      <div className="grid grid-cols-4 gap-3 mb-6 animate-slide-up opacity-0" style={{ animationDelay: '80ms' }}>
         {IMPORT_TABS.map(({ mode, label, icon: Icon, desc }) => (
-          <button
-            key={mode}
-            type="button"
+          <button key={mode} type="button"
             onClick={() => { setImportMode(mode); setParsed(false); setRawImport(''); }}
-            className={`group relative flex flex-col items-center gap-1.5 px-3 py-3 rounded-lg border text-xs font-bold transition-all
+            className={`group relative flex flex-col items-center gap-2 px-3 py-4 rounded-xl border text-xs font-bold transition-all duration-200
               ${importMode === mode
-                ? 'border-primary bg-primary/5 text-primary shadow-sm'
-                : 'border-border bg-card text-muted-foreground hover:border-primary/40 hover:text-foreground'
+                ? 'border-primary bg-gradient-to-b from-primary/10 to-primary/5 text-primary shadow-sm shadow-primary/10'
+                : 'border-border bg-card text-muted-foreground hover:border-primary/40 hover:text-foreground hover-lift'
               }`}
           >
-            <Icon className="h-4 w-4" />
+            <div className={`h-9 w-9 rounded-lg flex items-center justify-center transition-colors duration-200 ${
+              importMode === mode ? 'bg-primary text-primary-foreground' : 'bg-muted text-muted-foreground group-hover:bg-primary/10 group-hover:text-primary'
+            }`}>
+              <Icon className="h-4 w-4" />
+            </div>
             <span>{label}</span>
-            <span className="text-[10px] font-normal text-muted-foreground leading-tight text-center hidden sm:block">{desc}</span>
+            <span className="text-[10px] font-medium text-muted-foreground leading-tight text-center hidden sm:block">{desc}</span>
           </button>
         ))}
       </div>
 
       {/* Import Area */}
       {importMode !== 'form' && (
-        <div className="bg-card rounded-lg border shadow-ink p-5 mb-5 space-y-3">
+        <div className="bg-card rounded-xl border shadow-ink p-5 mb-6 space-y-3 animate-scale-in">
           <div className="flex items-center gap-2 mb-1">
-            <Upload className="h-4 w-4 text-primary" />
+            <div className="h-6 w-6 rounded-md bg-primary/10 flex items-center justify-center">
+              <Upload className="h-3.5 w-3.5 text-primary" />
+            </div>
             <span className="text-xs font-bold uppercase tracking-wider text-muted-foreground">
-              {importMode === 'email' ? 'Paste Email Content' : importMode === 'chat' ? 'Paste Chat / IM Conversation' : 'Paste Ticket Data'}
+              {importMode === 'email' ? 'Paste Email Content' : importMode === 'chat' ? 'Paste Chat Conversation' : 'Paste Ticket Data'}
             </span>
           </div>
-          <textarea
-            value={rawImport}
-            onChange={(e) => { setRawImport(e.target.value); setParsed(false); }}
-            placeholder={
-              importMode === 'email'
-                ? 'From: John Doe <john@company.com>\nSubject: Need access to production DB\nDate: 25 Mar 2026\n\nHi team, I need access to the production database...'
-                : importMode === 'chat'
-                ? '[10:32 AM] Sarah Chen: hey, the VPN keeps dropping every 10 minutes...'
-                : 'Ticket ID: INC-4521\nPriority: High\nType: Issue\n\nVPN connectivity drops intermittently...'
-            }
+          <textarea value={rawImport} onChange={(e) => { setRawImport(e.target.value); setParsed(false); }}
+            placeholder={importMode === 'email' ? 'From: John Doe <john@company.com>\nSubject: Need access...\n\nHi team...' : importMode === 'chat' ? '[10:32 AM] Sarah: hey, the VPN keeps dropping...' : 'Ticket ID: INC-4521\nPriority: High\n\nVPN connectivity drops...'}
             rows={7}
-            className="w-full px-3 py-2 text-sm bg-background border rounded-md focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary resize-none font-mono"
+            className="w-full px-4 py-3 text-sm bg-background border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary resize-none font-mono transition-shadow duration-200"
           />
           <div className="flex items-center gap-2">
-            <button type="button" onClick={handleParse} className="inline-flex items-center gap-1.5 px-4 py-2.5 bg-primary text-primary-foreground text-sm font-bold rounded-md hover:opacity-90 transition-opacity active:scale-[0.98]">
+            <button type="button" onClick={handleParse}
+              className="inline-flex items-center gap-1.5 px-5 py-2.5 bg-gradient-to-r from-primary to-[hsl(20,100%,42%)] text-primary-foreground text-sm font-bold rounded-lg hover:opacity-90 transition-all duration-200 active:scale-[0.97] shadow-glow">
               <Sparkles className="h-3.5 w-3.5" /> Parse & Extract
             </button>
-            <button type="button" onClick={resetImport} className="px-4 py-2.5 text-sm font-bold rounded-md border hover:bg-surface-raised transition-colors">Clear</button>
-            {parsed && <span className="text-xs text-success flex items-center gap-1 ml-auto font-semibold"><AlertCircle className="h-3 w-3" /> Fields pre-filled</span>}
+            <button type="button" onClick={resetImport} className="px-5 py-2.5 text-sm font-bold rounded-lg border hover:bg-surface-raised transition-colors duration-200">Clear</button>
+            {parsed && <span className="text-xs text-success flex items-center gap-1 ml-auto font-bold animate-fade-in"><AlertCircle className="h-3 w-3" /> Fields pre-filled</span>}
           </div>
         </div>
       )}
 
-      {/* Request Form */}
-      <form onSubmit={handleSubmit} className="bg-card rounded-lg border shadow-ink p-6 space-y-5">
+      {/* Form */}
+      <form onSubmit={handleSubmit} className="bg-card rounded-xl border shadow-ink p-6 space-y-6 animate-slide-up opacity-0" style={{ animationDelay: '150ms' }}>
         <fieldset className="space-y-4">
           <legend className="text-xs font-bold uppercase tracking-widest text-primary flex items-center gap-1.5 mb-2">
             <User className="h-3.5 w-3.5" /> Requestor Information
@@ -157,10 +154,8 @@ export default function CreateRequest() {
           <div className="grid grid-cols-2 gap-4">
             <Field label="Employee ID" value={form.requestorId} onChange={(v) => update('requestorId', v)} placeholder="EMP-0000" icon={Hash} />
             <div>
-              <label className="block text-xs font-bold text-muted-foreground uppercase tracking-wider mb-1.5 flex items-center gap-1">
-                <Building className="h-3 w-3" /> Department
-              </label>
-              <input type="text" placeholder="e.g. Engineering, HR, Finance" className="w-full px-3 py-2.5 text-sm bg-background border rounded-md focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary" />
+              <label className="block text-xs font-bold text-muted-foreground uppercase tracking-wider mb-1.5 flex items-center gap-1"><Building className="h-3 w-3" /> Department</label>
+              <input type="text" placeholder="e.g. Engineering, HR" className="w-full px-4 py-2.5 text-sm bg-background border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary transition-shadow duration-200" />
             </div>
           </div>
         </fieldset>
@@ -177,18 +172,16 @@ export default function CreateRequest() {
             />
             <SelectField label="Source Channel" value={form.sourceChannel} onChange={(v) => update('sourceChannel', v)} options={SOURCE_CHANNEL_OPTIONS} />
             <div>
-              <label className="block text-xs font-bold text-muted-foreground uppercase tracking-wider mb-1.5 flex items-center gap-1">
-                <Clock className="h-3 w-3" /> Priority
-              </label>
+              <label className="block text-xs font-bold text-muted-foreground uppercase tracking-wider mb-1.5 flex items-center gap-1"><Clock className="h-3 w-3" /> Priority</label>
               <div className="flex gap-1.5">
                 {PRIORITY_OPTIONS.map((p) => (
                   <button key={p} type="button" onClick={() => update('priority', p)}
-                    className={`flex-1 px-3 py-2.5 text-sm font-bold rounded-md border transition-all
+                    className={`flex-1 px-3 py-2.5 text-sm font-bold rounded-lg border transition-all duration-200
                       ${form.priority === p
-                        ? p === 'High' ? 'bg-destructive/10 border-destructive text-destructive'
-                          : p === 'Medium' ? 'bg-warning/10 border-warning text-warning'
-                          : 'bg-success/10 border-success text-success'
-                        : 'bg-background text-muted-foreground hover:bg-surface-raised'
+                        ? p === 'High' ? 'bg-destructive/10 border-destructive text-destructive shadow-sm'
+                          : p === 'Medium' ? 'bg-warning/10 border-warning text-warning shadow-sm'
+                          : 'bg-success/10 border-success text-success shadow-sm'
+                        : 'bg-background text-muted-foreground hover:bg-surface-raised hover:border-foreground/20'
                       }`}
                   >{p}</button>
                 ))}
@@ -206,17 +199,18 @@ export default function CreateRequest() {
           <div>
             <label className="block text-xs font-bold text-muted-foreground uppercase tracking-wider mb-1.5">Raw Request Description *</label>
             <textarea value={form.rawDescription} onChange={(e) => update('rawDescription', e.target.value)}
-              placeholder="Paste the original request text as received..."
-              rows={6}
-              className="w-full px-3 py-2.5 text-sm bg-background border rounded-md focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary resize-none"
+              placeholder="Paste the original request text as received..." rows={6}
+              className="w-full px-4 py-3 text-sm bg-background border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary resize-none transition-shadow duration-200"
             />
-            <p className="text-[11px] text-muted-foreground mt-1.5">This raw text will be processed by AI to generate structured request notes.</p>
+            <p className="text-[11px] text-muted-foreground mt-1.5">AI will process this text to generate structured request notes.</p>
           </div>
         </fieldset>
 
         {/* SLA Preview */}
-        <div className="bg-primary/5 rounded-md px-4 py-3 flex items-center gap-3 text-xs border border-primary/20">
-          <Clock className="h-4 w-4 text-primary" />
+        <div className="bg-gradient-to-r from-primary/5 to-transparent rounded-lg px-4 py-3 flex items-center gap-3 text-xs border border-primary/15">
+          <div className="h-8 w-8 rounded-lg bg-primary/10 flex items-center justify-center">
+            <Clock className="h-4 w-4 text-primary" />
+          </div>
           <div>
             <span className="font-bold text-foreground">Estimated SLA: </span>
             <span className="text-muted-foreground">
@@ -231,12 +225,11 @@ export default function CreateRequest() {
         </div>
 
         <div className="flex items-center gap-3 pt-2">
-          <button type="submit" className="px-6 py-2.5 bg-primary text-primary-foreground text-sm font-bold rounded-md hover:opacity-90 transition-opacity active:scale-[0.98]">
-            Create Request
+          <button type="submit"
+            className="inline-flex items-center gap-2 px-6 py-2.5 bg-gradient-to-r from-primary to-[hsl(20,100%,42%)] text-primary-foreground text-sm font-bold rounded-lg hover:opacity-90 transition-all duration-200 active:scale-[0.97] shadow-glow">
+            <Send className="h-4 w-4" /> Create Request
           </button>
-          <button type="button" onClick={() => navigate('/requests')} className="px-6 py-2.5 text-sm font-bold rounded-md border hover:bg-surface-raised transition-colors">
-            Cancel
-          </button>
+          <button type="button" onClick={() => navigate('/requests')} className="px-6 py-2.5 text-sm font-bold rounded-lg border hover:bg-surface-raised transition-colors duration-200">Cancel</button>
         </div>
       </form>
     </div>
@@ -252,7 +245,7 @@ function Field({ label, value, onChange, placeholder, type = 'text', icon: Icon 
         {Icon && <Icon className="h-3 w-3" />} {label}
       </label>
       <input type={type} value={value} onChange={(e) => onChange(e.target.value)} placeholder={placeholder}
-        className="w-full px-3 py-2.5 text-sm bg-background border rounded-md focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary"
+        className="w-full px-4 py-2.5 text-sm bg-background border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary transition-shadow duration-200"
       />
     </div>
   );
@@ -265,7 +258,7 @@ function SelectField({ label, value, onChange, options, descriptions }: {
     <div>
       <label className="block text-xs font-bold text-muted-foreground uppercase tracking-wider mb-1.5">{label}</label>
       <select value={value} onChange={(e) => onChange(e.target.value)}
-        className="w-full px-3 py-2.5 text-sm bg-background border rounded-md focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary text-foreground"
+        className="w-full px-4 py-2.5 text-sm bg-background border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary text-foreground transition-shadow duration-200"
       >
         {options.map((o) => <option key={o} value={o}>{o}</option>)}
       </select>

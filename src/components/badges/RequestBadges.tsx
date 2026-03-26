@@ -14,7 +14,10 @@ const statusStyles: Record<RequestStatus, string> = {
 
 export function StatusBadge({ status }: StatusBadgeProps) {
   return (
-    <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-[11px] font-bold tracking-wide uppercase ${statusStyles[status]}`}>
+    <span className={`inline-flex items-center px-2.5 py-1 rounded-full text-[11px] font-bold tracking-wide uppercase transition-colors duration-200 ${statusStyles[status]}`}>
+      <span className={`w-1.5 h-1.5 rounded-full mr-1.5 ${
+        status === 'Draft' ? 'bg-muted-foreground' : status === 'Reviewed' ? 'bg-primary' : status === 'Approved' ? 'bg-success' : 'bg-foreground'
+      }`} />
       {status}
     </span>
   );
@@ -32,7 +35,8 @@ const priorityStyles: Record<Priority, string> = {
 
 export function PriorityBadge({ priority }: PriorityBadgeProps) {
   return (
-    <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-[11px] font-bold tracking-wide uppercase ${priorityStyles[priority]}`}>
+    <span className={`inline-flex items-center px-2.5 py-1 rounded-full text-[11px] font-bold tracking-wide uppercase ${priorityStyles[priority]}`}>
+      {priority === 'High' && <span className="w-1.5 h-1.5 rounded-full bg-destructive mr-1.5 animate-pulse" />}
       {priority}
     </span>
   );
@@ -44,7 +48,7 @@ interface TypeBadgeProps {
 
 export function TypeBadge({ type }: TypeBadgeProps) {
   return (
-    <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-primary/10 text-primary border border-primary/20">
+    <span className="inline-flex items-center px-2.5 py-1 rounded-full text-[11px] font-bold bg-primary/10 text-primary border border-primary/15">
       {type}
     </span>
   );
@@ -66,7 +70,8 @@ export function DueBadge({ dueDate }: DueBadgeProps) {
   if (status === 'normal') return null;
 
   return (
-    <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-[11px] font-bold ${styles[status]}`}>
+    <span className={`inline-flex items-center px-2.5 py-1 rounded-full text-[11px] font-bold ${styles[status]}`}>
+      {status === 'overdue' && <span className="w-1.5 h-1.5 rounded-full bg-destructive mr-1.5 animate-pulse" />}
       {labels[status]}
     </span>
   );
@@ -78,7 +83,7 @@ interface TagBadgeProps {
 
 export function TagBadge({ tag }: TagBadgeProps) {
   return (
-    <span className="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-bold bg-primary/10 text-primary border border-primary/20">
+    <span className="inline-flex items-center px-2.5 py-1 rounded-full text-[10px] font-bold bg-primary/8 text-primary border border-primary/15 hover:bg-primary/15 transition-colors duration-200 cursor-default">
       {tag}
     </span>
   );
